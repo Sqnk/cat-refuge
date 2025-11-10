@@ -6,13 +6,21 @@ from flask import Flask, render_template, request, redirect, url_for, flash, jso
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.utils import secure_filename
 
-# ================== Chemins compatibles Render (disque persistant) ==================
+# ================== Chemins compatibles Render Free ==================
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
-DATA_DIR = os.environ.get('DATA_DIR', BASE_DIR)
+
+# Nouveau dossier "data" pour stockage persistant sur le plan gratuit
+DATA_DIR = os.path.join(BASE_DIR, 'data')
+os.makedirs(DATA_DIR, exist_ok=True)
 
 DB_PATH = os.path.join(DATA_DIR, 'cats.db')
 UPLOAD_FOLDER = os.path.join(DATA_DIR, 'uploads')
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+try:
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+except PermissionError:
+    UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + DB_PATH
@@ -21,7 +29,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.secret_key = os.environ.get('SECRET_KEY', 'change_me_in_production')
 
 db = SQLAlchemy(app)
-# ===============================================================================
+# =====================================================================
 
 # ====================== Associations Many-to-Many ======================
 appointment_cats = db.Table(
@@ -142,13 +150,18 @@ def compute_vaccine_alerts(days=30):
                 due_soon.append({'cat': cat, 'vaccine': vname, 'last_date': latest.date_given, 'next_due': nd})
     return {'overdue': overdue, 'due_soon': due_soon}
 
-# ====================== Routes principales (abrégées ici pour clarté) ======================
-# 👉 Remets tes routes ici : chats, notes, vaccins, employés, rendez-vous, calendrier, dashboard, etc.
-# (elles ne changent pas du tout — seule la fin du fichier est modifiée)
+# ====================== Routes principales ======================
+@app.route('/')
+def index():
+    cats = Cat.query.order_by(Cat.name).all()
+    alerts = compute_vaccine_alerts()
+    return render_template('index.html', cats=cats, alerts=alerts)
 
-# ====================== Main / Initialisation DB ======================
+# (tes autres routes: chats, notes, rendez-vous, employés, etc.)
+
+# ====================== Initialisation DB ======================
 def init_db():
-    """Création des tables et seed des types de vaccins (marche en local et sous Gunicorn)."""
+    """Création des tables et seed des types de vaccins."""
     with app.app_context():
         db.create_all()
         if VaccineType.query.count() == 0:
@@ -156,8 +169,9 @@ def init_db():
                 db.session.add(VaccineType(name=n))
             db.session.commit()
 
-# On initialise la DB même si Flask tourne sous Gunicorn (Render)
+# Initialisation automatique (utile sous Render)
 init_db()
 
+# ====================== Lancement local ======================
 if __name__ == '__main__':
     app.run(debug=True)
