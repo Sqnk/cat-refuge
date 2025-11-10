@@ -1,83 +1,31 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <title>Refuge Chats</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-
-  <!-- Bootstrap -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
-
-  <!-- FullCalendar & Tom Select via unpkg (modifiables en local si besoin) -->
-  <link href="https://unpkg.com/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
-  <link href="https://unpkg.com/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
-
-  <link href="{{ url_for('static', filename='style.css') }}" rel="stylesheet">
-
-  <style>
-    #calendar{min-height:650px}
-  </style>
+  <meta charset="UTF-8">
+  <title>Refuge pour Chats</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-3">
-  <div class="container">
-    <a class="navbar-brand" href="{{ url_for('dashboard') }}">Refuge</a>
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-            aria-controls="mainNav" aria-expanded="false" aria-label="Basculer la navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div id="mainNav" class="collapse navbar-collapse">
-      <ul class="navbar-nav me-auto">
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Recherche</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('chats_list') }}">Chats</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('appointments_page') }}">Rendez-vous</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('calendar_view') }}">Calendrier</a></li>
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('search_notes') }}">Recherche notes</a></li>
-
-        <!-- Nouveau menu déroulant "Gestion" -->
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" id="gestionMenu" role="button"
-             data-bs-toggle="dropdown" aria-expanded="false">
-            Gestion
-          </a>
-          <ul class="dropdown-menu" aria-labelledby="gestionMenu">
-            <li><a class="dropdown-item" href="{{ url_for('employees') }}">Employés</a></li>
-            <li><a class="dropdown-item" href="{{ url_for('vaccines') }}">Types de vaccins</a></li>
-          </ul>
-        </li>
-
-        <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
-      </ul>
-
-      <a class="btn btn-sm btn-light" href="{{ url_for('new_cat') }}">+ Ajouter un chat</a>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="{{ url_for('dashboard') }}">Refuge</a>
+      <div class="collapse navbar-collapse">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}">Chats</a></li>
+          <li class="nav-item"><a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a></li>
+        </ul>
+      </div>
     </div>
+  </nav>
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="alert alert-{{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
   </div>
-</nav>
-
-<div class="container">
-  {% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-      {% for cat, msg in messages %}
-        <div class="alert alert-{{ cat }} alert-dismissible fade show" role="alert">
-          {{ msg }}
-          <button class="btn-close" data-bs-dismiss="alert" aria-label="Fermer"></button>
-        </div>
-      {% endfor %}
-    {% endif %}
-  {% endwith %}
-
-  {% block content %}{% endblock %}
-</div>
-
-<!-- JS Bootstrap (inclut Popper pour dropdowns) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- FullCalendar & Tom Select -->
-<script src="https://unpkg.com/fullcalendar@6.1.11/index.global.min.js"></script>
-<script src="https://unpkg.com/tom-select@2.3.1/dist/js/tom-select.complete.min.js"></script>
-
-<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

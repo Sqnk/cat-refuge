@@ -1,104 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
-<h1 class="mb-3">Dashboard</h1>
+<h1 class="mb-4">Tableau de bord</h1>
 
-<div class="row">
-  <div class="col-md-4">
-    <div class="card mb-3">
-      <div class="card-header">Statistiques</div>
+<div class="row text-center">
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
       <div class="card-body">
-        <ul class="list-group">
-          <li class="list-group-item d-flex justify-content-between"><span>Chats</span><strong>{{ stats.cats }}</strong></li>
-          <li class="list-group-item d-flex justify-content-between"><span>Rendez-vous</span><strong>{{ stats.appointments }}</strong></li>
-          <li class="list-group-item d-flex justify-content-between">
-            <span>Vaccins à traiter</span>
-            <strong>{{ stats.vaccines_due }}</strong>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="card mb-3 border-danger">
-      <div class="card-header text-danger fw-bold">Vaccins en retard</div>
-      <div class="card-body p-0">
-        <ul class="list-group list-group-flush">
-          {% for v in alerts.overdue %}
-          <li class="list-group-item">
-            <a href="{{ url_for('view_cat', cat_id=v.cat.id) }}">{{ v.cat.name }}</a>
-            — <strong>{{ v.vaccine }}</strong>
-            <div class="small text-muted">
-              {% if v.never %}Jamais vacciné{% else %}Dernier: {{ v.last_date.strftime('%d/%m/%Y') }}, rappel dû: {{ v.next_due.strftime('%d/%m/%Y') }}{% endif %}
-            </div>
-          </li>
-          {% else %}
-          <li class="list-group-item">Aucun vaccin en retard.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-header">Vaccins à prévoir (30 jours)</div>
-      <div class="card-body p-0">
-        <ul class="list-group list-group-flush">
-          {% for v in alerts.due_soon %}
-          <li class="list-group-item">
-            <a href="{{ url_for('view_cat', cat_id=v.cat.id) }}">{{ v.cat.name }}</a>
-            — <strong>{{ v.vaccine }}</strong>
-            <div class="small text-muted">
-              Dernier: {{ v.last_date.strftime('%d/%m/%Y') }}, rappel: {{ v.next_due.strftime('%d/%m/%Y') }}
-            </div>
-          </li>
-          {% else %}
-          <li class="list-group-item">Aucun vaccin imminent.</li>
-          {% endfor %}
-        </ul>
+        <h3>{{ total_cats }}</h3>
+        <p>Chats enregistrés</p>
       </div>
     </div>
   </div>
-
-  <div class="col-md-8">
-    <div class="card">
-      <div class="card-header">Calendrier (lecture + clic vers édition)</div>
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
       <div class="card-body">
-        <div id="calendar"></div>
+        <h3>{{ total_vaccines }}</h3>
+        <p>Types de vaccins</p>
       </div>
     </div>
   </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  if (!window.FullCalendar) return;
-  var el = document.getElementById('calendar');
-  var calendar = new FullCalendar.Calendar(el, {
-    timeZone: 'local',
-    initialView: 'dayGridMonth',
-    headerToolbar: { left:'prev,next today', center:'title', right:'dayGridMonth,timeGridWeek,timeGridDay' },
-    events: "{{ url_for('api_appointments') }}",
-    eventDidMount: function(info){
-      const p = info.event.extendedProps || {};
-      const cats = (p.cats || []).join(', ') || '—';
-      const emps = (p.employees || []).join(', ') || '—';
-      const time = p.time || info.event.start.toLocaleString();
-      const notes = p.notes ? `<div class="text-muted small">Notes: ${p.notes}</div>` : '';
-      const html = `
-        <div><strong>${info.event.title}</strong></div>
-        <div>🕒 ${time}</div>
-        <div>🐾 Chats: ${cats}</div>
-        <div>👥 Employés: ${emps}</div>
-        ${notes}
-      `;
-      new bootstrap.Tooltip(info.el, { title: html, html: true, placement: 'top', trigger: 'hover' });
-    },
-    eventClick: function(info){
-      if(info.event.url){
-        window.location.href = info.event.url;
-        info.jsEvent.preventDefault();
-      }
-    }
-  });
-  calendar.render();
-});
-</script>
+<p class="text-center mt-4 text-muted">Bienvenue sur le tableau de bord de votre refuge.</p>
 {% endblock %}
