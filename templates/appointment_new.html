@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Nouveau rendez-vous</h2>
+<form method="post" class="card p-3">
+  <div class="mb-2"><label>Lieu</label><input name="location" class="form-control"></div>
+
+  <div class="row g-2">
+    <div class="col-md-4">
+      <label class="form-label">Date</label>
+      <input type="date" id="dateInput" name="date" class="form-control" value="{{ default_date }}" required>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Heure</label>
+      <input type="time" id="timeInput" name="time" class="form-control" value="{{ default_time }}" required>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button type="button" id="btnNow2h" class="btn btn-outline-secondary w-100">Aujourd’hui +2 h</button>
+    </div>
+  </div>
+
+  <div class="mb-2 mt-2">
+    <label>Chats</label>
+    <select id="catSelect" name="cat_ids" multiple class="form-control">
+      {% for c in cats %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+    </select>
+  </div>
+
+  <div class="mb-2">
+    <label>Employés</label>
+    <select id="empSelect" name="employee_ids" multiple class="form-control">
+      {% for e in employees %}<option value="{{ e.id }}">{{ e.name }}{% if e.role %} ({{ e.role }}){% endif %}</option>{% endfor %}
+    </select>
+    <div class="form-text">Gérez les employés ici : <a href="{{ url_for('employees') }}">page Employés</a></div>
+  </div>
+
+  <div class="mb-2"><label>Notes</label><input name="notes" class="form-control"></div>
+  <button class="btn btn-primary">Créer</button>
+</form>
+
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  if (window.TomSelect) {
+    new TomSelect("#catSelect", {plugins:['remove_button'], create:false, persist:false});
+    new TomSelect("#empSelect", {plugins:['remove_button'], create:false, persist:false});
+  }
+  const btn = document.getElementById('btnNow2h');
+  const dI = document.getElementById('dateInput');
+  const tI = document.getElementById('timeInput');
+  btn.addEventListener('click', ()=>{
+    const d = new Date();
+    d.setHours(d.getHours()+2);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    const HH = String(d.getHours()).padStart(2,'0');
+    const MM = String(d.getMinutes()).padStart(2,'0');
+    dI.value = `${yyyy}-${mm}-${dd}`;
+    tI.value = `${HH}:${MM}`;
+  });
+});
+</script>
+{% endblock %}

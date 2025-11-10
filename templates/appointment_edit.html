@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Modifier RDV</h2>
+<form method="post" class="card p-3">
+  <div class="mb-2"><label>Lieu</label><input name="location" class="form-control" value="{{ appt.location }}"></div>
+  <div class="mb-2"><label>Date</label><input type="date" name="date" class="form-control" value="{{ appt.date.strftime('%Y-%m-%d') }}" required></div>
+  <div class="mb-2"><label>Heure</label><input type="time" name="time" class="form-control" value="{{ appt.date.strftime('%H:%M') }}" required></div>
+
+  <div class="mb-2"><label>Chats</label>
+    <select id="catSelect" name="cat_ids" multiple class="form-control">
+      {% for c in cats %}
+      <option value="{{ c.id }}" {% if c in appt.cats %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="mb-2"><label>Employés</label>
+    <select id="empSelect" name="employee_ids" multiple class="form-control">
+      {% for e in employees %}
+      <option value="{{ e.id }}" {% if e in appt.employees %}selected{% endif %}>{{ e.name }}{% if e.role %} ({{ e.role }}){% endif %}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="mb-2"><label>Notes</label><input name="notes" class="form-control" value="{{ appt.notes or '' }}"></div>
+  <button class="btn btn-primary">Enregistrer</button>
+</form>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+  if (window.TomSelect) {
+    new TomSelect("#catSelect", {plugins:['remove_button'], create:false, persist:false});
+    new TomSelect("#empSelect", {plugins:['remove_button'], create:false, persist:false});
+  }
+});
+</script>
+{% endblock %}

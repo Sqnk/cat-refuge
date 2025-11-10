@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-3">Types de vaccins</h1>
+
+<form method="post" class="card card-body mb-3">
+  <div class="row g-2">
+    <div class="col-md-8">
+      <label class="form-label">Nom du vaccin</label>
+      <input name="name" class="form-control" placeholder="Ex: Rage" required>
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+      <button class="btn btn-primary w-100">Ajouter</button>
+    </div>
+  </div>
+</form>
+
+<table class="table table-striped">
+  <thead><tr><th>Nom</th><th class="text-end">Actions</th></tr></thead>
+  <tbody>
+    {% for v in vaccines %}
+    <tr>
+      <td>{{ v.name }}</td>
+      <td class="text-end">
+        <form method="post" action="{{ url_for('delete_vaccine_type', vid=v.id) }}" onsubmit="return confirm('Supprimer ce type ?')">
+          <button class="btn btn-sm btn-danger">Supprimer</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="2">Aucun vaccin dans la liste.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

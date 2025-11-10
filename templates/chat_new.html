@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Ajouter un chat</h2>
+<form method="post" enctype="multipart/form-data" class="card p-3">
+  <div class="mb-2"><label>Nom</label><input name="name" class="form-control" required></div>
+  <div class="mb-2"><label>Date de naissance</label><input type="date" name="birthdate" class="form-control"></div>
+  <div class="mb-2">
+    <label>Statut</label>
+    <select name="status" class="form-select">
+      {% for st in statuses %}<option value="{{ st }}">{{ st }}</option>{% endfor %}
+    </select>
+  </div>
+  <div class="mb-2"><label>Photo</label><input type="file" name="photo" class="form-control"></div>
+  <button class="btn btn-primary">Créer</button>
+</form>
+{% endblock %}

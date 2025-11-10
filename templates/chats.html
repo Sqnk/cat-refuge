@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-3">Chats</h1>
+
+<form method="get" class="card card-body mb-3">
+  <div class="row g-2">
+    <div class="col-md-3">
+      <label class="form-label">Nom contient</label>
+      <input class="form-control" name="q" value="{{ q or '' }}">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Statut</label>
+      <select name="status" class="form-select">
+        <option value="">(Tous)</option>
+        {% for st in statuses %}
+          <option value="{{ st }}" {% if st==cur_status %}selected{% endif %}>{{ st }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Vaccin manquant (12 mois)</label>
+      <select name="missing_vaccine" class="form-select">
+        <option value="">(Aucun)</option>
+        {% for v in vaccine_types %}
+          <option value="{{ v }}" {% if v==cur_missing %}selected{% endif %}>{{ v }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Filtrer par vétérinaire</label>
+      <input class="form-control" name="vet" value="{{ cur_vet or '' }}" placeholder="Nom cabinet / véto">
+    </div>
+  </div>
+  <div class="mt-2">
+    <button class="btn btn-primary">Filtrer</button>
+    <a class="btn btn-outline-secondary" href="{{ url_for('chats_list') }}">Réinitialiser</a>
+  </div>
+</form>
+
+<table class="table table-striped">
+  <thead><tr><th>Nom</th><th>Âge</th><th>Statut</th><th>Actions</th></tr></thead>
+  <tbody>
+    {% for cat in cats %}
+    <tr>
+      <td><a href="{{ url_for('view_cat', cat_id=cat.id) }}">{{ cat.name }}</a></td>
+      <td>{{ cat.age_str() }}</td>
+      <td>{{ cat.status }}</td>
+      <td>
+        <a class="btn btn-sm btn-secondary" href="{{ url_for('edit_cat', cat_id=cat.id) }}">Modifier</a>
+        <form method="post" action="{{ url_for('delete_cat', cat_id=cat.id) }}" style="display:inline" onsubmit="return confirm('Supprimer ?')">
+          <button class="btn btn-sm btn-danger">Supprimer</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

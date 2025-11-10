@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Modifier la note</h2>
+<form method="post" enctype="multipart/form-data" class="card p-3">
+  <div class="mb-2"><label>Auteur</label><input name="author" class="form-control" value="{{ note.author }}" required></div>
+  <div class="mb-2"><label>Contenu</label><textarea name="content" class="form-control" rows="4" required>{{ note.content }}</textarea></div>
+  <div class="mb-2"><label>Pièce jointe (remplacer)</label><input type="file" name="attachment" class="form-control"></div>
+  <button class="btn btn-primary">Enregistrer</button>
+  <a class="btn btn-outline-secondary" href="{{ url_for('view_cat', cat_id=note.cat_id) }}">Annuler</a>
+</form>
+{% endblock %}

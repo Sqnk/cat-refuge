@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Modifier {{ cat.name }}</h2>
+<form method="post" enctype="multipart/form-data" class="card p-3">
+  <div class="mb-2"><label>Nom</label><input name="name" class="form-control" value="{{ cat.name }}" required></div>
+  <div class="mb-2"><label>Date de naissance</label><input type="date" name="birthdate" value="{{ cat.birthdate }}" class="form-control"></div>
+  <div class="mb-2">
+    <label>Statut</label>
+    <select name="status" class="form-select">
+      {% for st in statuses %}
+        <option value="{{ st }}" {% if st==cat.status %}selected{% endif %}>{{ st }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="mb-2"><label>Nouvelle photo (optionnel)</label><input type="file" name="photo" class="form-control"></div>
+  <button class="btn btn-primary">Enregistrer</button>
+</form>
+{% endblock %}

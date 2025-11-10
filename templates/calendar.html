@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-3">Calendrier des rendez-vous</h1>
+<div id="calendar"></div>
+
+<hr>
+<h5>Données brutes de l'API</h5>
+<pre id="rawEvents" class="bg-light p-2 border rounded" style="max-height:240px; overflow:auto;">(en chargement...)</pre>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+  // debug brut
+  try {
+    const r = await fetch("{{ url_for('api_appointments_debug') }}");
+    const j = await r.json();
+    document.getElementById('rawEvents').textContent = JSON.stringify(j, null, 2);
+  } catch (e) {
+    document.getElementById('rawEvents').textContent = 'Erreur de chargement: ' + e;
+  }
+
+  // calendrier
+  var el = document.getElementById('calendar');
+  var calendar = new FullCalendar.Calendar(el, {
+    timeZone: 'local',
+    initialView: 'dayGridMonth',
+    headerToolbar: { left:'prev,next today', center:'title', right:'dayGridMonth,timeGridWeek,timeGridDay' },
+    selectable: true,
+    editable: true,
+    events: "{{ url_for('api_appointments') }}",
+    eventDidMount: function(info){
+      // Construire le contenu du tooltip à partir de extendedProps
+      const p = info.event.extendedProps || {};
+      const cats = (p.cats || []).join(', ') || '—';
+      const emps = (p.employees || []).join(', ') || '—';
+      const time = p.time || '—';
+      const notes = p.notes ? `<div class="text-muted small">Notes: ${p.notes}</div>` : '';
+      const html = `
+        <div><strong>${info.event.title}</strong></div>
+        <div>🕒 ${time}</div>
+        <div>🐾 Chats: ${cats}</div>
+        <div>👥 Employés: ${emps}</div>
+        ${notes}
+      `;
+      // Bootstrap tooltip (HTML)
+      new bootstrap.Tooltip(info.el, { title: html, html: true, placement: 'top', trigger: 'hover' });
+    },
+    select: async function(info) {
+      if(confirm("Créer un rendez-vous à " + info.startStr + " ?")) {
+        await fetch("{{ url_for('api_appointments') }}", {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json' },
+          body: JSON.stringify({ start: info.startStr })
+        });
+        calendar.refetchEvents();
+      }
+    },
+    eventDrop: async function(info) {
+      await fetch("{{ url_for('api_appointments') }}", {
+        method: 'PATCH',
+        headers: { 'Content-Type':'application/json' },
+        body: JSON.stringify({ id: info.event.id, start: info.event.start.toISOString() })
+      });
+      calendar.refetchEvents();
+    },
+    eventClick: function(info){
+      if(info.event.url){
+        window.location.href = info.event.url;
+        info.jsEvent.preventDefault();
+      }
+    }
+  });
+  calendar.render();
+});
+</script>
+{% endblock %}

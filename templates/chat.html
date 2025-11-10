@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h2>{{ cat.name }}</h2>
+  <div>
+    <a class="btn btn-sm btn-secondary" href="{{ url_for('edit_cat', cat_id=cat.id) }}">Modifier</a>
+    <form method="post" action="{{ url_for('delete_cat', cat_id=cat.id) }}" style="display:inline" onsubmit="return confirm('Supprimer ?')">
+      <button class="btn btn-sm btn-danger">Supprimer</button>
+    </form>
+  </div>
+</div>
+
+<p>Âge : {{ cat.age_str() }} — Statut : <span class="badge bg-info">{{ cat.status }}</span></p>
+{% if cat.photo_filename %}
+  <img src="{{ url_for('uploaded_file', filename=cat.photo_filename) }}" style="max-height:180px" class="mb-3">
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Notes (toutes)</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('add_note', cat_id=cat.id) }}" enctype="multipart/form-data" class="row g-2 mb-3">
+          <div class="col-4"><input name="author" class="form-control form-control-sm" placeholder="Auteur" required></div>
+          <div class="col-5"><input name="content" class="form-control form-control-sm" placeholder="Votre note..." required></div>
+          <div class="col-2"><input type="file" name="attachment" class="form-control form-control-sm"></div>
+          <div class="col-1"><button class="btn btn-sm btn-primary w-100">+</button></div>
+        </form>
+        <ul class="list-group">
+          {% for n in cat.notes %}
+          <li class="list-group-item d-flex justify-content-between align-items-start">
+            <div>
+              <strong>{{ n.author }}</strong>
+              <small class="text-muted">({{ n.timestamp.strftime('%d/%m/%Y %H:%M') }})</small><br>
+              {{ n.content }}
+              {% if n.attachment_filename %}
+                <div><a href="{{ url_for('uploaded_file', filename=n.attachment_filename) }}" target="_blank">Pièce jointe</a></div>
+              {% endif %}
+            </div>
+            <div>
+              <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('edit_note', note_id=n.id) }}">Éditer</a>
+              <form method="post" action="{{ url_for('delete_note', note_id=n.id) }}" style="display:inline" onsubmit="return confirm('Supprimer cette note ?')">
+                <button class="btn btn-sm btn-outline-danger">Suppr.</button>
+              </form>
+            </div>
+          </li>
+          {% else %}
+          <li class="list-group-item">Aucune note.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card">
+      <div class="card-header">Vaccins (derniers 3 + rappel à 1 an)</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('add_vaccine', cat_id=cat.id) }}" class="row g-2 mb-3">
+          <div class="col-4">
+            <select name="vaccine_name" class="form-select form-select-sm" required>
+              <option value="">-- vaccin --</option>
+              {% for v in vaccine_types %}<option value="{{ v }}">{{ v }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="col-3"><input type="date" name="date_given" class="form-control form-control-sm" required></div>
+          <div class="col-2"><input name="lot" class="form-control form-control-sm" placeholder="Lot"></div>
+          <div class="col-3"><input name="vet_name" class="form-control form-control-sm" placeholder="Vétérinaire"></div>
+          <div class="col-12 mt-1"><input name="reaction" class="form-control form-control-sm" placeholder="Réaction (optionnel)"></div>
+          <div class="col-12 mt-1"><button class="btn btn-sm btn-success">Ajouter vaccin</button></div>
+        </form>
+
+        {% set last = last_vaccines %}
+        <ul class="list-group">
+          {% for v in last %}
+          <li class="list-group-item">
+            <div><strong>{{ v.vaccine_name }}</strong> — fait le {{ v.date_given.strftime('%d/%m/%Y') }}</div>
+            {% set nd = v.next_due() %}
+            <div class="small text-muted">
+              {% if v.lot %}Lot: {{ v.lot }} — {% endif %}
+              {% if v.vet_name %}Véto: {{ v.vet_name }} — {% endif %}
+              {% if v.reaction %}Réaction: {{ v.reaction }} — {% endif %}
+              {% if nd %}Rappel: {{ nd.strftime('%d/%m/%Y') }}{% endif %}
+            </div>
+          </li>
+          {% else %}
+          <li class="list-group-item">Aucun vaccin enregistré.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header">Rendez-vous (liés à ce chat)</div>
+      <div class="card-body">
+        <ul class="list-group">
+          {% for a in cat.appointments %}
+          <li class="list-group-item">
+            {{ a.date.strftime('%d/%m/%Y %H:%M') }} — {{ a.location }} {% if a.notes %}— {{ a.notes }}{% endif %}
+          </li>
+          {% else %}
+          <li class="list-group-item">Aucun RDV.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

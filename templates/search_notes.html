@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-3">Recherche dans les notes</h1>
+<form method="get" class="mb-3">
+  <div class="input-group">
+    <input class="form-control" name="q" value="{{ q or '' }}" placeholder="Tapez un mot, auteur, etc.">
+    <button class="btn btn-primary">Rechercher</button>
+  </div>
+</form>
+
+<ul class="list-group">
+  {% for n in results %}
+  <li class="list-group-item">
+    <div class="small text-muted">{{ n.timestamp.strftime('%d/%m/%Y %H:%M') }}</div>
+    <div><strong>{{ n.author }}</strong> — <a href="{{ url_for('view_cat', cat_id=n.cat_id) }}">voir le chat</a></div>
+    <div>{{ n.content }}</div>
+    {% if n.attachment_filename %}
+      <div><a href="{{ url_for('uploaded_file', filename=n.attachment_filename) }}" target="_blank">Pièce jointe</a></div>
+    {% endif %}
+  </li>
+  {% else %}
+  <li class="list-group-item">Aucun résultat.</li>
+  {% endfor %}
+</ul>
+{% endblock %}

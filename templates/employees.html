@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-3">Employés</h1>
+
+<form method="post" class="card card-body mb-3">
+  <div class="row g-2">
+    <div class="col-md-6">
+      <label class="form-label">Nom</label>
+      <input name="name" class="form-control" required>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Rôle (optionnel)</label>
+      <input name="role" class="form-control" placeholder="Bénévole, soigneur, etc.">
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+      <button class="btn btn-primary w-100">Ajouter</button>
+    </div>
+  </div>
+</form>
+
+<table class="table table-striped">
+  <thead><tr><th>Nom</th><th>Rôle</th><th></th></tr></thead>
+  <tbody>
+    {% for e in employees %}
+    <tr>
+      <td>{{ e.name }}</td>
+      <td>{{ e.role or '—' }}</td>
+      <td class="text-end">
+        <form method="post" action="{{ url_for('delete_employee', emp_id=e.id) }}" onsubmit="return confirm('Supprimer ?')">
+          <button class="btn btn-sm btn-danger">Supprimer</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="3">Aucun employé.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h1>Rendez-vous</h1>
+  <div class="d-flex gap-2">
+    <a class="btn btn-outline-secondary" href="{{ url_for('calendar_view') }}">📅 Ouvrir le calendrier</a>
+    <a class="btn btn-success" href="{{ url_for('new_appointment') }}">+ Nouveau RDV</a>
+  </div>
+</div>
+
+<div class="row">
+  <!-- À venir -->
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header">À venir</div>
+      <ul class="list-group list-group-flush">
+        {% for a in upcoming %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <div>
+              <strong>{{ a.date.strftime('%d/%m/%Y %H:%M') }}</strong>
+              {% if a.location %} — {{ a.location }}{% endif %}
+            </div>
+            <div class="small text-muted">
+              {{ a.cats | map(attribute='name') | join(', ') }}
+              {% if a.notes %} — {{ a.notes }}{% endif %}
+            </div>
+          </div>
+          <div class="ms-2">
+            <a class="btn btn-sm btn-primary" href="{{ url_for('edit_appointment', appt_id=a.id) }}">Modifier</a>
+            <form method="post"
+                  action="{{ url_for('delete_appointment', appt_id=a.id) }}"
+                  style="display:inline"
+                  onsubmit="return confirm('Supprimer ce rendez-vous ?')">
+              <button class="btn btn-sm btn-danger">Supprimer</button>
+            </form>
+          </div>
+        </li>
+        {% else %}
+        <li class="list-group-item">Aucun rendez-vous à venir.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- Historique -->
+  <div class="col-md-6">
+    <div class="card mb-3">
+      <div class="card-header">Historique</div>
+      <ul class="list-group list-group-flush">
+        {% for a in past %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <div>
+              <strong>{{ a.date.strftime('%d/%m/%Y %H:%M') }}</strong>
+              {% if a.location %} — {{ a.location }}{% endif %}
+            </div>
+            <div class="small text-muted">
+              {{ a.cats | map(attribute='name') | join(', ') }}
+              {% if a.notes %} — {{ a.notes }}{% endif %}
+            </div>
+          </div>
+          <div class="ms-2">
+            <a class="btn btn-sm btn-outline-primary" href="{{ url_for('edit_appointment', appt_id=a.id) }}">Voir / éditer</a>
+          </div>
+        </li>
+        {% else %}
+        <li class="list-group-item">Pas d’historique.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

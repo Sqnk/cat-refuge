@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-3">Chercher un chat</h1>
+<div class="mb-2 position-relative">
+  <input id="searchBox" class="form-control" placeholder="Tapez un nom... (liste complète affichée, filtrée au fur et à mesure)">
+  <div id="searchResults" class="list-group position-absolute w-100 z-3 mt-1"></div>
+</div>
+<p class="text-muted">Cliquez sur un résultat pour ouvrir la fiche du chat. Ou <a href="{{ url_for('chats_list') }}">voir tous les chats</a>.</p>
+{% endblock %}
