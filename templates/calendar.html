@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">Calendrier des rendez-vous</h1>
+
+<div id="calendar" class="card p-3"></div>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', async function() {
+  const el = document.getElementById('calendar');
+
+  const calendar = new FullCalendar.Calendar(el, {
+    initialView: 'dayGridMonth',
+    locale: 'fr',
+    height: 'auto',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    events: async function(fetchInfo, successCallback, failureCallback) {
+      try {
+        const res = await fetch('{{ url_for("api_appointments") }}');
+        const data = await res.json(); // { count, items: [...] }
+        const events = (data.items || []).map(a => ({
+          id: a.id,
+          title: a.location || 'Rendez-vous',
+          start: a.date_iso,     // ex: "2025-11-11T14:00:00"
+          allDay: false,
+          // affiche les détails dans le tooltip natif (title HTML "title" sur l'event)
+          extendedProps: {
+            cats: (a.cats || []).join(', ') || 'Aucun',
+            employees: (a.employees || []).join(', ') || 'Aucun'
+          }
+        }));
+        successCallback(events);
+      } catch (e) {
+        console.error(e);
+        failureCallback(e);
+      }
+    },
+    eventDidMount: function(info) {
+      const cats = info.event.extendedProps.cats;
+      const employees = info.event.extendedProps.employees;
+      const dt = info.event.start;
+      const when = dt ? dt.toLocaleString('fr-FR') : '';
+      info.el.title = `Lieu : ${info.event.title}
+Date/heure : ${when}
+Chats : ${cats}
+Employés : ${employees}`;
+      // si tu veux ouvrir l'édition quand on clique (quand tu auras la route d'édition):
+      // info.el.addEventListener('click', () => window.location.href = '/appointments');
+    }
+  });
+
+  calendar.render();
+});
+</script>
+{% endblock %}
