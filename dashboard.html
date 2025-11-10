@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">Tableau de bord</h1>
+
+<div class="row text-center">
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3>{{ total_cats }}</h3>
+        <p>Chats enregistrés</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 mb-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h3>{{ total_vaccines }}</h3>
+        <p>Types de vaccins</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="text-center mt-4 text-muted">Bienvenue sur le tableau de bord de votre refuge.</p>
+{% endblock %}
